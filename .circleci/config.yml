@@ -1,18 +1,4 @@
 version: 2.1
-commands:
-  install-dep:
-    parameters:
-      path:
-        type: string
-    steps:
-      - run:
-          name: npm install
-          working_directory: ./<< parameters.path >>
-          command: npm install
-      - persist_to_workspace:
-          root: .
-          paths:
-            - << parameters.path >>/node_modules
 
 # commands:
 #   destroy-environment:
@@ -140,6 +126,10 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
