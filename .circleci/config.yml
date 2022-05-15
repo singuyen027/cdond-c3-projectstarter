@@ -265,7 +265,7 @@ jobs:
           command: |
             backend_dns=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
+              --filters "Name=tag:Name,Values=backend-nguyents2" \
               --output text)
             export API_URL="http://${backend_dns}:3030"
             echo ENVIRONMENT=production > ".env"
@@ -278,7 +278,7 @@ jobs:
           name: Deploy frontend object to S3
           working_directory: ./frontend
           command: |
-            aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID}" --recursive
+            aws s3 cp ./dist "s3://udapeople-nguyents2" --recursive
   deploy-backend:
     docker:
       - image: python:3.9.0-alpine
