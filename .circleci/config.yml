@@ -142,19 +142,18 @@ jobs:
               --stack-name "udapeople-frontend-nguyents2" \
               --parameter-overrides ID="nguyents2"  \
               --tags project=udapeople
-         - run:
+      - run:
           name: Add back-end ip to ansible inventory
           command: |
-            aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+           aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].3.84.227.111' \
               --filters "Name=tag:project,Values=udapeople" \
               --output text >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
-      - destroy-environment
+            - project/.circleci/ansible/inventory.txt   
 
 #   configure-infrastructure:
 #     docker:
