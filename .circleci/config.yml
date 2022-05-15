@@ -201,7 +201,7 @@ tar utility is not present in this image but it is required. Please install it t
             else
               echo "kvdb failed"
               curl -H "Content-Type: text/plain" -H \
-              --request PUT --data "failure"https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/scripts/migration_nguyents2
+              --request PUT --data "failure" https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/scripts/migration_nguyents2
             fi
 
   deploy-frontend:
