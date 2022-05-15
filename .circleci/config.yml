@@ -134,6 +134,8 @@ jobs:
               --stack-name "udapeople-backend-nguyents2" \
               --parameter-overrides ID="nguyents2"  \
               --tags project=udapeople
+     steps:
+      - checkout
       - run:
           name: Ensure front-end infrastructure exist
           command: |
