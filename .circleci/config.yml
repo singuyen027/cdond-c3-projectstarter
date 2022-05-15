@@ -1,4 +1,19 @@
 version: 2.1
+commands:
+  install-dep:
+    parameters:
+      path:
+        type: string
+    steps:
+      - run:
+          name: npm install
+          working_directory: ./<< parameters.path >>
+          command: npm install
+      - persist_to_workspace:
+          root: .
+          paths:
+            - << parameters.path >>/node_modules
+
 # commands:
 #   destroy-environment:
 #     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -200,9 +215,8 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - aws-cli/setup
-      # - restore_cache:
-      #     keys: ["backend-build"]
+      - install-dep:
+          path: backend
       - run:
           name: Run migrations
           working_directory: ./backend
