@@ -157,21 +157,17 @@ jobs:
               --parameter-overrides ID="nguyents2"  \
               --tags project=udapeople
       - run:
-          name: Add backend IP to inventory file & memstash
+          name: Add back-end ip to ansible inventory
           command: |
-            backend_ip=$(aws ec2 describe-instances \
+            aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
-              --output text)
-            echo Backend IP: $backend_ip
-            echo $backend_ip >> ./.circleci/ansible/inventory.txt
-            cat ./.circleci/ansible/inventory.txt
-            curl -H "Content-Type: text/plain" -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
-              --request PUT --data "$backend_ip" https://api.memstash.io/values/backend_ip
+              --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: .
+          root: ~/
           paths:
-            - .circleci/ansible/inventory.txt
+            - project/.circleci/ansible/inventory.txt
       #  - run:
       #     name: Add backend IP to inventory file & memstash
       #     command: |
