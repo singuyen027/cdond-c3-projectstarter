@@ -196,33 +196,33 @@ jobs:
             echo Backend IP: $backend_ip
             ansible-playbook -i inventory.txt configure-server.yml --extra-vars "backend_ip=$backend_ip"
 
-  run-migrations:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - install-dep:
-          path: backend
-      - run:
-          name: Run migrations
-          working_directory: ./backend
-          command: |
-            npm run migrations > migration_status
-            cat migration_status
-      - run:
-          name: Check migration result and send to memstash
-          working_directory: ./backend
-          command: |
-            if grep -q "has been executed successfully" migration_status
-            then
-              echo "Migration was successful!"
-              curl -H "Content-Type: text/plain" -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
-              --request PUT --data "success" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-            else
-              echo "Migration failed"
-              curl -H "Content-Type: text/plain" -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
-              --request PUT --data "failure" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-            fi
+  # run-migrations:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - checkout
+  #     - install-dep:
+  #         path: backend
+  #     - run:
+  #         name: Run migrations
+  #         working_directory: ./backend
+  #         command: |
+  #           npm run migrations > migration_status
+  #           cat migration_status
+  #     - run:
+  #         name: Check migration result and send to memstash
+  #         working_directory: ./backend
+  #         command: |
+  #           if grep -q "has been executed successfully" migration_status
+  #           then
+  #             echo "Migration was successful!"
+  #             curl -H "Content-Type: text/plain" -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
+  #             --request PUT --data "success" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+  #           else
+  #             echo "Migration failed"
+  #             curl -H "Content-Type: text/plain" -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
+  #             --request PUT --data "failure" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+  #           fi
 
   deploy-frontend:
     docker:
@@ -477,8 +477,8 @@ workflows:
               only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
