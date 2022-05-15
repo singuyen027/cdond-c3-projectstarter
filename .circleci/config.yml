@@ -243,8 +243,7 @@ jobs:
           command: |   
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-           # If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
-            curl https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/scripts/migration_nguyents2  -d '1'
+            curl https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/scripts/migration_nguyents2  -d '1' 
             fi    
   deploy-frontend:
     docker:
