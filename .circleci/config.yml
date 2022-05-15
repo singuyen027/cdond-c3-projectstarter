@@ -161,21 +161,39 @@ jobs:
   configure-infrastructure:
     docker:
       - image: python:3.9.0-alpine
+    environment:
+      ENVIRONMENT: "production"
+      TYPEORM_CONNECTION: ${TYPEORM_CONNECTION}
+      TYPEORM_HOST: ${TYPEORM_HOST}
+      TYPEORM_USERNAME: ${TYPEORM_USERNAME}
+      TYPEORM_PASSWORD: ${TYPEORM_PASSWORD}
+      TYPEORM_DATABASE: ${TYPEORM_DATABASE}
+      TYPEORM_PORT: ${TYPEORM_PORT}
+      TYPEORM_ENTITIES: ${TYPEORM_ENTITIES}
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: ["66:17:29:67:33:4e:b0:bb:27:da:59:63:98:4e:7c:f6:de:44:d9:ed"]
-      - attach_workspace:
+       - attach_workspace:
           at: .
       - run:
-          name: Install dependencies
+          name: Install ansible
           command: |
-            npm install
+            apk add --update ansible
+            ansible --version
       - run:
-          name: Configure server
+          name: Install curl
           command: |
-           cd .circleci/ansible
-           ansible-playbook -i inventory.txt configure-server.yml
+            apk add --update curl
+      - run:
+          name: Configure backend server
+          working_directory: ./.circleci/ansible
+          command: |
+            backend_ip=$(curl -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
+              --request GET https://api.memstash.io/values/backend_ip)
+            cat inventory.txt
+            echo Backend IP: $backend_ip
+            ansible-playbook -i inventory.txt configure-server.yml --extra-vars "backend_ip=$backend_ip"
       # Here's where you will add some code to rollback on failure      
 
 #  configure-infrastructure:
@@ -347,8 +365,8 @@ workflows:
           filters:
             branches:
               only: [master]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
