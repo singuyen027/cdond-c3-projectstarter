@@ -161,7 +161,7 @@ jobs:
           command: |
             backend_ip=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=backend-${CIRCLE_WORKFLOW_ID}" \
+              --filters "Name=tag:project,Values=udapeople" \
               --output text)
             echo Backend IP: $backend_ip
             echo $backend_ip >> ./.circleci/ansible/inventory.txt
@@ -172,6 +172,9 @@ jobs:
           root: .
           paths:
             - .circleci/ansible/inventory.txt
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID}
+          when: on_fail
       #  - run:
       #     name: Add backend IP to inventory file & memstash
       #     command: |
