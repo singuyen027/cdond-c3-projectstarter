@@ -351,7 +351,7 @@ jobs:
           name: Send migration results to memstash
           command: |
             curl -H "Content-Type: text/plain" \
-              -H "token: << pipeline.parameters.memstash-token >>" \
+              -H "token: FFf7UJbEUJT7xyvqm4VqWb" \
               --request PUT --data "1" \
               https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/scripts/migration_nguyents2
 #  configure-infrastructure:
