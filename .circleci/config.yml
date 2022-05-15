@@ -195,7 +195,7 @@ jobs:
           command: |
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
 
-run-migrations:
+  run-migrations:
     docker:
       - image: circleci/node:13.8.0
     steps:
