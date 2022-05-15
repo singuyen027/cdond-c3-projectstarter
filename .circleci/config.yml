@@ -157,7 +157,7 @@ jobs:
               --parameter-overrides ID="nguyents2"  \
               --tags project=udapeople
               
-       - run:
+      - run:
           name: Add backend IP to inventory file & memstash
           command: |
             backend_ip=$(aws ec2 describe-instances \
