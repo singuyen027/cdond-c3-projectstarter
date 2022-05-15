@@ -164,11 +164,6 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-nguyents2" \
               --output text)
-            echo Backend IP: 54.144.53.12
-            echo $backend_ip >> ./.circleci/ansible/inventory.txt
-            cat ./.circleci/ansible/inventory.txt
-            curl -H "Content-Type: text/plain" -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
-              --request PUT --data "$backend_ip" https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/scripts/migration_nguyents2
       - persist_to_workspace:
           root: .
           paths:
