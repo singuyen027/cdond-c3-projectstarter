@@ -137,10 +137,9 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: cimg/base:2020.01
+      - image: amazon/aws-cli
     steps:
       - checkout
-      - aws-cli/setup
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -148,7 +147,7 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --stack-name "udapeople-backend-nguyents2" \
               --parameter-overrides ID="nguyents2"  \
-              --tags project=udapeople
+              --tags project=udapeoples
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -157,18 +156,7 @@ jobs:
               --stack-name "udapeople-frontend-nguyents2" \
               --parameter-overrides ID="nguyents2"  \
               --tags project=udapeople
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople" \
-              --output text >> .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/.circleci/ansible/inventory.txt
+              
       #  - run:
       #     name: Add backend IP to inventory file & memstash
       #     command: |
