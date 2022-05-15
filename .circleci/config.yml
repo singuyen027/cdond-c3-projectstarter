@@ -279,12 +279,11 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            backend_dns=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicDnsName' \
-              --filters "Name=tag:Name,Values=backend-nguyents2" \
-              --output text)
+            backend_ip='cat .circleci/ansible/inventory.txt | head -2 | tail -1'
+            echo ${backend_ip}
+            curl "http://${backend_ip}:3030/api/status"
             if 
-              curl -s http://${backend_dns}:3030/api/status | grep "ok"
+              curl -s http://${backend_ip}:3030/api/status | grep "ok"
             then
               exit 0
             else
