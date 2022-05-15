@@ -145,13 +145,15 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            54.221.190.148
-            exit 1
+           aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
-      Here's where you will add some code to rollback on failure      
+            - project/.circleci/ansible/inventory.txt   
 
 #   configure-infrastructure:
 #     docker:
