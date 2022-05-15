@@ -155,19 +155,7 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --stack-name "udapeople-frontend-nguyents2" \
               --parameter-overrides ID="nguyents2"  \
-              --tags project=udapeople
-              
-      - run:
-          name: Add backend IP to inventory file & memstash
-          command: |
-            backend_ip=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=backend-nguyents2" \
-              --output text)
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .circleci/ansible/inventory.txt
+              --tags project=udapeople           
       
   configure-infrastructure:
     docker:
