@@ -204,35 +204,6 @@ jobs:
           when: on_fail
           command: |
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
-
-
-  # run-migrations:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - checkout
-  #     - install-dep:
-  #         path: backend
-  #     - run:
-  #         name: Run migrations
-  #         working_directory: ./backend
-  #         command: |
-  #           npm run migrations > migration_status
-  #           cat migration_status
-  #     - run:
-  #         name: Check migration result and send to memstash
-  #         working_directory: ./backend
-  #         command: |
-  #           if grep -q "has been executed successfully" migration_status
-  #           then
-  #             echo "Migration was successful!"
-  #             curl -H "Content-Type: text/plain" -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
-  #             --request PUT --data "success" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-  #           else
-  #             echo "Migration failed"
-  #             curl -H "Content-Type: text/plain" -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
-  #             --request PUT --data "failure" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-  #           fi
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
@@ -337,13 +308,14 @@ jobs:
           command: |
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
-      - run:
-          name: Get backend url
-          command: |
-            export BACKEND_URL=$(sed -n 2p .circleci/ansible/inventory.txt)
+
       - run:
           name: Backend smoke test.
           command: |
+            BACKEND_URL=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicDnsName' \
+              --filters "Name=tag:Name,Values=backend-nguyents2" \
+              --output text)
             export API_URL="http://${BACKEND_URL}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
