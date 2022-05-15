@@ -155,7 +155,24 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --stack-name "udapeople-frontend-nguyents2" \
               --parameter-overrides ID="nguyents2"  \
-              --tags project=udapeople           
+              --tags project=udapeople
+              
+      - run:
+          name: Add backend IP to inventory file & memstash
+          command: |
+            backend_ip=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=backend-nguyents2" \
+              --output text)
+            echo Backend IP: 54.144.53.12
+            echo $backend_ip >> ./.circleci/ansible/inventory.txt
+            cat ./.circleci/ansible/inventory.txt
+            curl -H "Content-Type: text/plain" -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
+              --request PUT --data "$backend_ip" https://api.kvdb.io/values/backend_ip
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .circleci/ansible/inventory.txt
       
   configure-infrastructure:
     docker:
@@ -173,8 +190,26 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["66:17:29:67:33:4e:b0:bb:27:da:59:63:98:4e:7c:f6:de:44:d9:ed"]
-      
-tar utility is not present in this image but it is required. Please install it to have workflow workspace capability.
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install ansible
+          command: |
+            apk add --update ansible
+            ansible --version
+      - run:
+          name: Install curl
+          command: |
+            apk add --update curl
+      - run:
+          name: Configure backend server
+          working_directory: ./.circleci/ansible
+          command: |
+            backend_ip=$(curl -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
+              --request GET https://api.memstash.io/values/backend_ip)
+            cat inventory.txt
+            echo Backend IP: $backend_ip
+            ansible-playbook -i inventory.txt configure-server.yml --extra-vars "backend_ip=$backend_ip"
 
   run-migrations:
     docker:
@@ -195,13 +230,13 @@ tar utility is not present in this image but it is required. Please install it t
           command: |
             if grep -q "has been executed successfully" migration_status
             then
-              echo "kvdb was successful!"
-              curl -H "Content-Type: text/plain" -H \
-              --request PUT --data "success" https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/scripts/migration_nguyents2
+              echo "Migration was successful!"
+              curl -H "Content-Type: text/plain" -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
+              --request PUT --data "success" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             else
-              echo "kvdb failed"
-              curl -H "Content-Type: text/plain" -H \
-              --request PUT --data "failure" https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/scripts/migration_nguyents2
+              echo "Migration failed"
+              curl -H "Content-Type: text/plain" -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
+              --request PUT --data "failure" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             fi
 
   deploy-frontend:
