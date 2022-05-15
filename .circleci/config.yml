@@ -161,40 +161,40 @@ jobs:
   configure-infrastructure:
     docker:
       - image: python:3.9.0-alpine
-    environment:
-      ENVIRONMENT: "production"
-      TYPEORM_CONNECTION: ${TYPEORM_CONNECTION}
-      TYPEORM_HOST: ${TYPEORM_HOST}
-      TYPEORM_USERNAME: ${TYPEORM_USERNAME}
-      TYPEORM_PASSWORD: ${TYPEORM_PASSWORD}
-      TYPEORM_DATABASE: ${TYPEORM_DATABASE}
-      TYPEORM_PORT: ${TYPEORM_PORT}
-      TYPEORM_ENTITIES: ${TYPEORM_ENTITIES}
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: ["66:17:29:67:33:4e:b0:bb:27:da:59:63:98:4e:7c:f6:de:44:d9:ed"]
-       - attach_workspace:
-          at: .
+      - attach_workspace:
+          at: ~/
       - run:
-          name: Install ansible
+          name: Install dependencies
           command: |
             apk add --update ansible
-            ansible --version
+            cat .circleci/ansible/inventory.txt
       - run:
-          name: Install curl
+          name: Configure server
           command: |
-            apk add --update curl
+            echo ENVIRONMENT=production > "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo NODE_ENV=production >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            ansible-playbook \
+              -i .circleci/ansible/inventory.txt \
+              .circleci/ansible/configure-server.yml
       - run:
-          name: Configure backend server
-          working_directory: ./.circleci/ansible
+          name: Install AWS CLI for rollback
+          when: on_fail
           command: |
-            backend_ip=$(curl -H "token: dd8404ce-b1ff-4441-8c72-1765aeb9f088" \
-              --request GET https://api.memstash.io/values/backend_ip)
-            cat inventory.txt
-            echo Backend IP: $backend_ip
-            ansible-playbook -i inventory.txt configure-server.yml --extra-vars "backend_ip=$backend_ip"
-      # Here's where you will add some code to rollback on failure      
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+      - destroy-environment    
 
 #  configure-infrastructure:
 #      docker:
