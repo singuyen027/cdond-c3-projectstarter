@@ -128,30 +128,24 @@ jobs:
       # Checkout code from git
       - run:
           name: Ensure back-end infrastructure exists
-          working_directory: ./.circleci/files
           command: |
             aws cloudformation deploy \
-              --template-file backend.yml \
+              --template-file ./.circleci/files/backend.yml \
               --stack-name "udapeople-backend-nguyents2" \
               --parameter-overrides ID="nguyents2"  \
               --tags project=udapeople
       - run:
           name: Ensure front-end infrastructure exist
-          working_directory: ./.circleci/files
           command: |
             aws cloudformation deploy \
-              --template-file fontend.yml \
+              --template-file ./.circleci/files/fontend.yml \
               --stack-name "udapeople-fontend-nguyents2" \
               --parameter-overrides ID="nguyents2"  \
               --tags project=udapeople
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-           aws cloudformation deploy \
-              --template-file .circleci/files/backend.yml \
-              --stack-name "udapeople-backend-nguyents2" \
-              --parameter-overrides ID="nguyents2"  \
-              --tags project=udapeople
+           --
       - persist_to_workspace:
           root: ~/
           paths:
