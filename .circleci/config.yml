@@ -281,6 +281,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
+            # Fetch and prepare the BACKEND_IP env var
             export API_URL="http://34.229.178.51:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
