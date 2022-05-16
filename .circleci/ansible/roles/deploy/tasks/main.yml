@@ -1,0 +1,32 @@
+---
+- name: Create directory for backend
+  file:
+    path: /home/ubuntu/backend/
+    state: directory
+
+- name: Copy backend files
+  become: yes
+  synchronize:
+    src: ../../backend
+    dest: /home/ubuntu
+    recursive: true
+
+# - name: Copy backend files
+#   become: yes
+#   synchronize:
+#     src: ../../backend/dist
+#     dest: /home/ubuntu/backend
+#     recursive: true
+
+# - name: Copy backend modules
+#   become: yes
+#   synchronize:
+#     src: ../../backend/node_modules
+#     dest: /home/ubuntu/backend
+#     recursive: true
+
+- name: Start server
+  become: true
+  command: pm2 start npm -- run start
+  args:
+    chdir: /home/ubuntu/backend
