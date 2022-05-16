@@ -1,4 +1,4 @@
-version: 2.1            
+version: 2.1
 jobs:
   build-frontend:
     docker:
@@ -58,7 +58,7 @@ jobs:
             cd backend
             npm install
             npm run test
-            
+
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -113,7 +113,7 @@ jobs:
               --stack-name "udapeople-frontend-nguyents2" \
               --parameter-overrides ID="nguyents2"  \
               --tags project=udapeople
-              
+
       - run:
           name: Add backend IP to inventory file & memstash
           command: |
@@ -127,7 +127,7 @@ jobs:
           root: .
           paths:
             - .circleci/ansible/inventory.txt
-      
+
   configure-infrastructure:
     docker:
       - image: python:3.9.0-alpine
@@ -180,11 +180,11 @@ jobs:
       - checkout
       - run:
           name: Send migration status to kvdb.io OR memstash.io
-          command: |   
+          command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
             curl https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/scripts/migration_nguyents2  -d '1' 
-            fi    
+            fi
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
@@ -226,7 +226,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["66:17:29:67:33:4e:b0:bb:27:da:59:63:98:4e:7c:f6:de:44:d9:ed"]
-     - attach_workspace:
+      - attach_workspace:
           at: .
       - run:
           name: Install ansible
@@ -293,7 +293,7 @@ jobs:
                 return 0
             else
                 return 1
-            fi  
+            fi
       - run:
           name: Frontend smoke test.
           command: |
@@ -306,7 +306,7 @@ jobs:
             else
               return 1
             fi
-      # Here's where you will add some code to rollback on failure  
+      # Here's where you will add some code to rollback on failure
 
 #   cloudfront-update:
 #     docker:
@@ -321,7 +321,7 @@ jobs:
 #           name: Update cloudfront distribution
 #           command: |
 #             # your code here
-#       # Here's where you will add some code to rollback on failure  
+#       # Here's where you will add some code to rollback on failure
 
 # cleanup:
 #     docker:
@@ -341,7 +341,7 @@ jobs:
 #             then
 #               # your code here
 #             fi
-            
+
 workflows:
   default:
     jobs:
