@@ -264,10 +264,9 @@ jobs:
             npm run build
       - run:
           name: Deploy backend
-          working_directory: ./.circleci/ansible
           command: |
             cat inventory.txt
-            ansible-playbook -i .circleci/ansible/inventory.txt deploy-backend.yml
+            ansible-playbook -i inventory.txt deploy-backend.yml
   smoke-test:
     docker:
       - image: amazon/aws-cli
@@ -276,6 +275,14 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            # Zip the directory
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
 
