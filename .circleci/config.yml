@@ -150,18 +150,16 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
-            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-            cat .circleci/ansible/inventory.txt
       - run:
           name: Configure server
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      - run:
-          name: Install AWS CLI for rollback
-          when: on_fail
-          command: |
-            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+      # - run:
+      #     name: Install AWS CLI for rollback
+      #     when: on_fail
+      #     command: |
+      #       apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
