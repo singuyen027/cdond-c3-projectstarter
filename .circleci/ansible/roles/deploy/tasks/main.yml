@@ -1,18 +1,14 @@
 ---
-- name: Create directory for backend
-  file:
-    path: /home/ubuntu/backend/
-    state: directory
-
-- name: "upgrade packages."
+- name: "upgrade packages"
   become: true
   apt:
     upgrade: "yes"
 
-- name: "install dependencies."
+- name: "install dependencies"
   become: true
   apt:
     name: ["nodejs", "npm"]
+    state: latest
     update_cache: yes
 
 - name: "install pm2"
@@ -23,53 +19,22 @@
     production: yes
     state: present
 
-- name: "copy backend file"
-  become: true
-  copy:
-    src: /root/project/backend
-    dest: /root
-    force: no
+- name: Creates directory
+  file:
+    path: /home/ubuntu/backend
+    state: directory
 
-- name: "install npm packages"
-  become: true
+- name: Unarchives the compressed artifact file
+  unarchive:
+    src: artifact.tar.gz
+    dest: /home/ubuntu/backend
+
+- name: Install dependencies
   command: npm install
   args:
-    chdir: /root/backend
+    chdir: /home/ubuntu/backend
 
-- name: "compile npm packages"
-  become: true
-  command: npm run build
+- name: Use pm2 to run backend
+  command: pm2 start dist/main.js --name "backend" -i max
   args:
-    chdir: /root/backend
-
-- name: "start server"
-  become: true
-  command: pm2 start npm -- run start
-  args:
-    chdir: /root/backend/dist
-# - name: Copy backend files
-#   become: yes
-#   synchronize:
-#     src: ../../backend
-#     dest: /home/ubuntu
-#     recursive: true
-
-# # - name: Copy backend files
-# #   become: yes
-# #   synchronize:
-# #     src: ../../backend/dist
-# #     dest: /home/ubuntu/backend
-# #     recursive: true
-
-# # - name: Copy backend modules
-# #   become: yes
-# #   synchronize:
-# #     src: ../../backend/node_modules
-# #     dest: /home/ubuntu/backend
-# #     recursive: true
-
-# - name: Start server
-#   become: true
-#   command: pm2 start npm -- run start
-#   args:
-#     chdir: /home/ubuntu/backend
+    chdir: /home/ubuntu/backend
