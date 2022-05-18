@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   slack: circleci/slack@4.1
-  
+
 commands:
   destroy-environments:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -382,10 +382,6 @@ jobs:
                 echo "--------------- CANNOT CLEAN ---------------"
               fi
             done
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-
 workflows:
   default:
     jobs:
