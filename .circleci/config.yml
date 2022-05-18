@@ -156,7 +156,6 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> .circleci/ansible/inventory.txt
-              cat inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
@@ -194,7 +193,6 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-            cat inventory.txt
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -284,7 +282,6 @@ jobs:
             cp artifact.tar.gz .circleci/ansible
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
-            cat inventory.txt
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
