@@ -125,9 +125,7 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -160,9 +158,7 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -189,11 +185,9 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl https://kvdb.io/D8zCyKQH9kqFkpnXXGfTu1/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   deploy-frontend:
@@ -213,7 +207,7 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
-            curl https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/apiurl -d ${API_URL}
+            curl https://kvdb.io/D8zCyKQH9kqFkpnXXGfTu1/apiurl -d ${API_URL}
             cat frontend/.env
       - run:
           name: Deploy frontend objects
@@ -223,9 +217,7 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -255,9 +247,7 @@ jobs:
             cp artifact.tar.gz .circleci/ansible
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -274,7 +264,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            API_URL=$(curl --insecure https://kvdb.io/FFf7UJbEUJT7xyvqm4VqWb/apiurl)
+            API_URL=$(curl --insecure https://kvdb.io/D8zCyKQH9kqFkpnXXGfTu1/apiurl)
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
