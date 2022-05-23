@@ -284,8 +284,8 @@ jobs:
             cp artifact.tar.gz .circleci/ansible
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - destroy-environments:
-          workflow_id: "924bf70"
+      # - destroy-environments:
+      #     workflow_id: "924bf70"
 
   smoke-test:
     docker:
