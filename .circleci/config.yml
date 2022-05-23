@@ -141,22 +141,22 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name "udapeople-backend-924bf70" \
+              --parameter-overrides ID="924bf70" \
       - run:
           name: Ensure front-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name "udapeople-frontend-924bf70" \
+              --parameter-overrides ID="924bf70" \
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --filters "Name=tag:Name,Values=backend-924bf70" \
               --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
@@ -164,7 +164,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
 
       - destroy-environments:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "924bf70"
 
   configure-infrastructure:
     docker:
@@ -196,7 +196,7 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environments:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "924bf70"
 
   run-migrations:
     docker:
@@ -221,11 +221,11 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/D8zCyKQH9kqFkpnXXGfTu1/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl https://kvdb.io/D8zCyKQH9kqFkpnXXGfTu1/migration_924bf70  -d '1'
             fi
 
       - destroy-environments:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "924bf70"
   deploy-frontend:
     docker:
       - image: sleavely/node-awscli:14.x
@@ -238,7 +238,7 @@ jobs:
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicDnsName' \
-            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --filters "Name=tag:Name,Values=backend-924bf70" \
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
@@ -252,11 +252,11 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            tar -czvf artifact-"924bf70".tar.gz dist
+            aws s3 cp dist s3://udapeople-924bf70 --recursive
 
       - destroy-environments:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "924bf70"
 
   deploy-backend:
     docker:
@@ -285,7 +285,7 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environments:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "924bf70"
 
   smoke-test:
     docker:
@@ -311,7 +311,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+            URL="http://udapeople-924bf70.s3-website-us-east-1.amazonaws.com/#/employees"            
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
@@ -320,9 +320,9 @@ jobs:
               return 1
             fi
       - destroy-environments:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "924bf70"
       - revert-migrations:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "924bf70"
 
   cloudfront-update:
     docker:
@@ -343,12 +343,12 @@ jobs:
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
             --stack-name InitialStack \
-            --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides WorkflowID="924bf70" \
             --tags project=udapeople
       - destroy-environments:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "924bf70"
       - revert-migrations:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          workflow_id: "924bf70"
 
   cleanup:
     docker:
