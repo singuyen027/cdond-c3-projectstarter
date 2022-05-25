@@ -53,6 +53,12 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+                - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -69,6 +75,13 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+                - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -82,6 +95,9 @@ jobs:
             cd frontend
             npm install
             npm run test
+                  - slack/notify:
+          event: fail
+          template: basic_fail_1
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -95,6 +111,9 @@ jobs:
             cd backend
             npm install
             npm run test
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   scan-frontend:
     docker:
@@ -110,6 +129,9 @@ jobs:
             npm install
             # npm install oauth-sign@^0.9.0
             npm audit fix --audit-level=critical
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -124,6 +146,10 @@ jobs:
             npm install
             # npm install oauth-sign@^0.9.0
             npm audit fix --audit-level=critical
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
 
   deploy-infrastructure:
     docker:
@@ -165,6 +191,11 @@ jobs:
 
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - destroy-environments:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   configure-infrastructure:
     docker:
@@ -195,6 +226,9 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
+       - slack/notify:
+          event: fail
+          template: basic_fail_1
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -223,7 +257,9 @@ jobs:
             then
               curl https://kvdb.io/D8zCyKQH9kqFkpnXXGfTu1/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   deploy-frontend:
@@ -254,7 +290,9 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -284,6 +322,9 @@ jobs:
             cp artifact.tar.gz .circleci/ansible
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
       - destroy-environments:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -381,6 +422,9 @@ jobs:
               else
                 echo "--------------- CANNOT CLEAN ---------------"
               fi
+     - slack/notify:
+          event: fail
+          template: basic_fail_1
 workflows:
   default:
     jobs:
